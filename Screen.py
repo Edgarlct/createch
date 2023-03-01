@@ -2,6 +2,7 @@
 from machine import I2C, Pin
 from lib.ssd1306 import SSD1306_I2C
 import framebuf
+import utime
 
 
 class Screen:
@@ -10,6 +11,8 @@ class Screen:
         self.oled = SSD1306_I2C(128, 64, self.i2c)
         self.oled.fill(0)
         self.oled.show()
+        self.width = self.oled.width
+        self.height = self.oled.height
 
     def showWifiConnected(self):
         self.oled.fill(0)
@@ -26,3 +29,16 @@ class Screen:
         fbuf = framebuf.FrameBuffer(bitmap, 20, 16, framebuf.MONO_HLSB)
         self.oled.blit(fbuf, 0, 0)
         self.oled.show()
+
+    def showMessage(self, message):
+        letter_width = 9
+        text_width = len(message) * letter_width
+        utime.sleep(0.5)
+        for i in range(text_width - self.width):
+            self.oled.fill(0)
+            self.oled.text(message[i // letter_width:], 0, (self.height // 2) - 4)
+            self.oled.show()
+            utime.sleep(0.001)
+
+    # def showAvailabiltiesSelection(self):
+
