@@ -38,7 +38,7 @@ class Screen:
             self.oled.fill(0)
             self.oled.text(message[i // letter_width:], 0, (self.height // 2) - 4)
             self.oled.show()
-            utime.sleep(0.001)
+            utime.sleep(0.010)
 
     # def showAvailabiltiesSelection(self):
 

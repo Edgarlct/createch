@@ -51,7 +51,7 @@ class Mqtt:
         msg = msg.decode('utf8').replace("'", '"')
         msg = json.loads(msg)
         if DEVICE_UUID in msg["targets"]:
-            self.messager.displayMessage(msg["message"])
+            self.messager.displayinDefinitelyMessage(msg["message"])
             print(msg["message"])
             self.led.on()
             utime.sleep(0.5)
