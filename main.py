@@ -10,26 +10,19 @@ running = True
 from mqttClient import Mqtt
 
 screen = Screen()
-wifi = Wifi("IIM_Private", "Creatvive_Lab_2023", screen)
+wifi = Wifi("wiFiste", "CRF92!vps", screen)
 # wifi = Wifi("iPhone de Edgar", "edouardlecon", screen)
-message = Message(screen)
-message.displayMessage('welcome')
-buzzer = Buzzer()
+messager = Message(screen)
+messager.displayMessage('welcome')
+utime.sleep(1)
 button = Button()
 wifi.connect()
-
-mqtt = Mqtt(message)
+buzzer = Buzzer()
+mqtt = Mqtt(messager, button, buzzer)
 
 while running:
+    print('subscribe')
     mqtt.subscribeToTopic('crf92')
     utime.sleep(1)
-
-
-
-
-screen.showUnreadMessage(buzzer, button)
-message.displayMessage("VSPP1 depart dflekf sslekf jselkfjs elkfj elksjf ")
-
-
 
 

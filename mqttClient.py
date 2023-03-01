@@ -11,11 +11,14 @@ class Mqtt:
     connectedToBroker = False
     client = False
 
-    def __init__(self, messager):
+    def __init__(self, messager, mainButton, buzzer):
         self.client = MQTTClient(client_id='bouldog', server=MQTT_BROKER_URL, port=1883)
         self.led = machine.Pin("LED", machine.Pin.OUT)
         self.mqttInit()
         self.messager = messager
+        self.button = mainButton
+        self.buzzer = buzzer
+        print('mqtt constructor end')
 
     def mqttInit(self):
         self.status = 'connecting'
@@ -50,13 +53,15 @@ class Mqtt:
     def sub_cb(self, topic, msg):
         msg = msg.decode('utf8').replace("'", '"')
         msg = json.loads(msg)
+
         if DEVICE_UUID in msg["targets"]:
-            self.messager.displayinDefinitelyMessage(msg["message"])
-            print(msg["message"])
-            self.led.on()
-            utime.sleep(0.5)
-            self.led.off()
-            utime.sleep(0.5)
-            self.led.on()
-            utime.sleep(0.5)
-            self.led.off()
+            msg['readed'] = False
+            while not msg['readed']:
+                if self.button.isPressed():
+                    msg['readed'] = True
+                    self.buzzer.bip(0.2)
+                    break
+                else:
+                    self.messager.showUnreadMessage(self.button)
+                    self.buzzer.bip(0.2)
+            self.messager.displayinDefinitelyMessage(msg['message'])
