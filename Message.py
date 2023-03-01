@@ -7,6 +7,9 @@ class Message:
     def displayMessage(self, message):
         print(message)
         self.screen.showMessage(message)
+
+    def receivedMessage(self, message):
+        print(message)
     def displayinDefinitelyMessage(self, message):
         while True:
             self.screen.showMessage(message)
