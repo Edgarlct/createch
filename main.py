@@ -6,7 +6,7 @@ from Message import Message
 from Screen import Screen
 from Wifi import Wifi
 import utime
-
+from conf.conf import MQTT_TOPIC_NAME
 from mqttClient import Mqtt
 
 ###################################################################
@@ -25,7 +25,7 @@ WIFI_STATUS = "disconnected"
 """:type: str, value: 'connected' or 'disconnected' 'connected_no_internet'"""
 
 ########## MQTT ##########
-MQTT_STATUS = "disconected"
+MQTT_CONNECTION_TO_BROKER_STATUS = "disconnected"
 """:type: str, value: "connected" or "disconnected" """
 
 MQTT_SUBSCRIBED_TOPIC = "none"
@@ -75,9 +75,8 @@ buzzer = Buzzer()
 # mqtt = Mqtt(messager, button, buzzer)
 buzzer.bip(0.1)
 
-_screen.showHome(WIFI_STATUS, mqtt_status="connected", home_texts=HOME_TEXTS)
+_screen.showHome(WIFI_STATUS, mqtt_status=MQTT_CONNECTION_TO_BROKER_STATUS, home_texts=HOME_TEXTS)
 
-VAR = 1
 
 ###################################################################
 ####################### MAIN LOOP #################################
@@ -85,9 +84,6 @@ VAR = 1
 
 while RUNNING:
      ####################### COLLECT STATUS AND UPDATE GLOBAL STATUS VAR ##############################
-
-    _mqtt.mqttInit(VAR)
-    print(VAR)
 
 
     ####################### EXECUTE ACTIONS BASED ON GLOBAL STATUS VAR ##############################
@@ -100,9 +96,24 @@ while RUNNING:
         print(e)
         WIFI_STATUS = "disconnected"
 
-    ###### update screen #########
+
+    ###### mqtt ####
+    if WIFI_STATUS == "connected" and MQTT_CONNECTION_TO_BROKER_STATUS == "disconnected":
+            MQTT_CONNECTION_TO_BROKER_STATUS = _mqtt.connectToBroker()
+
+    if MQTT_CONNECTION_TO_BROKER_STATUS == "connected" and MQTT_SUBSCRIBED_TOPIC == "none":
+        MQTT_SUBSCRIBED_TOPIC = _mqtt.subscribeToTopic(MQTT_TOPIC_NAME)
+
+    if MQTT_SUBSCRIBED_TOPIC != "none":
+        _mqtt.client.check_msg()
+
+    ######################## update UI ##############################
+    ###### update texts ######
+    HOME_TEXTS = [WIFI_STATUS, MQTT_SUBSCRIBED_TOPIC, "no error"]
+
+    ####### update screen #######
     try:
-        _screen.showHome(wifiStatus=WIFI_STATUS, mqtt_status="connected", home_texts=HOME_TEXTS)
+        _screen.showHome(wifiStatus=WIFI_STATUS, mqtt_status=MQTT_CONNECTION_TO_BROKER_STATUS, home_texts=HOME_TEXTS)
     except Exception as e:
         print("screen show home execption in main loop")
         print(e)

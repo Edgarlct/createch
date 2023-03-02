@@ -19,8 +19,9 @@ class Mqtt:
 
     def subscribeToTopic(self, topic_name):
         try:
+            self.client.set_callback(self.sub_cb)
             self.client.subscribe(topic_name)
-            return "topicName"
+            return topic_name
         except Exception as e:
             print("subscribe to topic error", e)
             return "none"
@@ -29,14 +30,15 @@ class Mqtt:
         msg = msg.decode('utf8').replace("'", '"')
         msg = json.loads(msg)
 
-        if DEVICE_UUID in msg["targets"]:
+        if "all" in msg['targets'] or DEVICE_UUID in msg["targets"]:
+            print("message received", msg)
             msg['readed'] = False
-            while not msg['readed']:
-                if self.button.isPressed():
-                    msg['readed'] = True
-                    self.buzzer.bip(0.2)
-                    break
-                else:
-                    self.messager.showUnreadMessage(self.button)
-                    self.buzzer.bip(0.2)
-            self.messager.displayinDefinitelyMessage(msg['message'])
+            # while not msg['readed']:
+            #     if self.button.isPressed():
+            #         msg['readed'] = True
+            #         self.buzzer.bip(0.2)
+            #         break
+            #     else:
+            #         self.messager.showUnreadMessage(self.button)
+            #         self.buzzer.bip(0.2)
+            # self.messager.displayinDefinitelyMessage(msg['message'])
