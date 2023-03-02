@@ -19,6 +19,7 @@ class Wifi:
 
     def checkIsConnected(self):
         while not self.wlan.isconnected():
+            self.wlan.connect(self.ssid, self.password)
             self.screen.showWifiConnecting()
             utime.sleep(1)
         self.screen.showWifiConnected()

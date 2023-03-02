@@ -1,3 +1,5 @@
+import machine
+
 from Button import Button
 from Buzzer import Buzzer
 from Message import Message
@@ -10,6 +12,7 @@ running = True
 from mqttClient import Mqtt
 
 screen = Screen()
+
 wifi = Wifi("wiFiste", "CRF92!vps", screen)
 # wifi = Wifi("iPhone de Edgar", "edouardlecon", screen)
 messager = Message(screen)
@@ -19,10 +22,16 @@ button = Button()
 wifi.connect()
 buzzer = Buzzer()
 mqtt = Mqtt(messager, button, buzzer)
+buzzer.bip(0.1)
+
+
 
 while running:
-    print('subscribe')
-    mqtt.subscribeToTopic('crf92')
-    utime.sleep(1)
+    try:
+        wifi.checkIsConnected()
+        mqtt.subscribeToTopic('crf92')
+        utime.sleep(1)
+    except:
+        machine.soft_reset()
 
 
