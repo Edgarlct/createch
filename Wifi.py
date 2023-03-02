@@ -20,9 +20,6 @@ class Wifi:
             utime.sleep(1)
             return self.getStatus()
         elif previous_status == 'connected_no_internet':
-            self.disconnect()
-            utime.sleep(2)
-            self.connect()
             return self.getStatus()
         else:
             return previous_status
