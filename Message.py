@@ -7,8 +7,8 @@ class Message:
     def displayMessage(self, message):
         self.screen.showMessage(message)
 
-    def showUnreadMessage(self, button):
-        self.screen.showUnreadMessage(button)
+    def showUnreadMessage(self):
+        self.screen.showUnreadMessage()
 
     def receivedMessage(self, message):
         print(message)

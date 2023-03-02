@@ -1,12 +1,10 @@
-import machine
-
 from Button import Button
 from Buzzer import Buzzer
-from Message import Message
 from Screen import Screen
 from Wifi import Wifi
 import utime
-from conf.conf import MQTT_TOPIC_NAME
+from Message import Message
+from conf.conf import MQTT_TOPIC_NAME, DEVICE_UUID
 from mqttClient import Mqtt
 
 ###################################################################
@@ -54,33 +52,27 @@ RECEIVED_MESSAGE_CUE = []
 """
 
 ########## TEXT ##########
-HOME_TEXTS = [WIFI_STATUS, MQTT_SUBSCRIBED_TOPIC, "no error"]
+HOME_TEXTS = [DEVICE_UUID, MQTT_SUBSCRIBED_TOPIC, "no error"]
 """ :type: list of strings, value: ["line1", "line2", "line3"] """
-
-
 
 
 ##################### init services #################################
 _screen = Screen()
 _wifi = Wifi()
-# messager = Message(screen)
-# messager.displayMessage('welcome')
-# utime.sleep(1)
-# button = Button()
+_messager = Message(_screen)
+_button = Button()
 _mqtt = Mqtt()
 
 ########################### init devices ################################
 
 buzzer = Buzzer()
-# mqtt = Mqtt(messager, button, buzzer)
-buzzer.bip(0.1)
 
 _screen.showHome(WIFI_STATUS, mqtt_status=MQTT_CONNECTION_TO_BROKER_STATUS, home_texts=HOME_TEXTS)
-
 
 ###################################################################
 ####################### MAIN LOOP #################################
 ###################################################################
+
 
 while RUNNING:
      ####################### COLLECT STATUS AND UPDATE GLOBAL STATUS VAR ##############################
@@ -99,17 +91,24 @@ while RUNNING:
 
     ###### mqtt ####
     if WIFI_STATUS == "connected" and MQTT_CONNECTION_TO_BROKER_STATUS == "disconnected":
-            MQTT_CONNECTION_TO_BROKER_STATUS = _mqtt.connectToBroker()
+        MQTT_CONNECTION_TO_BROKER_STATUS = _mqtt.connect_to_broker()
 
     if MQTT_CONNECTION_TO_BROKER_STATUS == "connected" and MQTT_SUBSCRIBED_TOPIC == "none":
-        MQTT_SUBSCRIBED_TOPIC = _mqtt.subscribeToTopic(MQTT_TOPIC_NAME)
+        MQTT_SUBSCRIBED_TOPIC = _mqtt.subscribe_to_topic(MQTT_TOPIC_NAME, RECEIVED_MESSAGE_CUE)
 
-    if MQTT_SUBSCRIBED_TOPIC != "none":
-        _mqtt.client.check_msg()
+    try:
+        if MQTT_SUBSCRIBED_TOPIC != "none":
+            _mqtt.client.check_msg()
+            if len(RECEIVED_MESSAGE_CUE) > 0:
+                print("received message")
+                print(RECEIVED_MESSAGE_CUE.pop(0)["message"])
+    except Exception as e:
+        print("check msg execption in main loop")
+        print(e)
 
     ######################## update UI ##############################
     ###### update texts ######
-    HOME_TEXTS = [WIFI_STATUS, MQTT_SUBSCRIBED_TOPIC, "no error"]
+    HOME_TEXTS = [DEVICE_UUID, MQTT_SUBSCRIBED_TOPIC, "no error"]
 
     ####### update screen #######
     try:

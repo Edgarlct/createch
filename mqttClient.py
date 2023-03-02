@@ -1,15 +1,12 @@
-import machine as machine
 import json
-import utime
-from machine import Pin
 from lib.umqtt.simple import MQTTClient
 from conf.conf import MQTT_TOPIC_NAME, MQTT_BROKER_URL, DEVICE_UUID
 
 
 class Mqtt:
     client = MQTTClient(client_id=DEVICE_UUID, server=MQTT_BROKER_URL, port=1883)
-
-    def connectToBroker(self):
+    message_queue = None
+    def connect_to_broker(self):
         try:
             self.client.connect()
             return "connected"
@@ -17,8 +14,9 @@ class Mqtt:
             print("connect to broker error", e)
             return "disconnected"
 
-    def subscribeToTopic(self, topic_name):
+    def subscribe_to_topic(self, topic_name, message_queue):
         try:
+            self.message_queue = message_queue
             self.client.set_callback(self.sub_cb)
             self.client.subscribe(topic_name)
             return topic_name
@@ -29,16 +27,6 @@ class Mqtt:
     def sub_cb(self, topic, msg):
         msg = msg.decode('utf8').replace("'", '"')
         msg = json.loads(msg)
-
         if "all" in msg['targets'] or DEVICE_UUID in msg["targets"]:
-            print("message received", msg)
-            msg['readed'] = False
-            # while not msg['readed']:
-            #     if self.button.isPressed():
-            #         msg['readed'] = True
-            #         self.buzzer.bip(0.2)
-            #         break
-            #     else:
-            #         self.messager.showUnreadMessage(self.button)
-            #         self.buzzer.bip(0.2)
-            # self.messager.displayinDefinitelyMessage(msg['message'])
+            self.message_queue.append(msg)
+    
