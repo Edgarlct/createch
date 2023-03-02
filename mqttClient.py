@@ -7,48 +7,23 @@ from conf.conf import MQTT_TOPIC_NAME, MQTT_BROKER_URL, DEVICE_UUID
 
 
 class Mqtt:
-    status = 'disconected'  # disconnected, connecting, connected
-    connectedToBroker = False
-    client = False
-
-    def __init__(self, messager, mainButton, buzzer):
-        self.client = MQTTClient(client_id='bouldog', server=MQTT_BROKER_URL, port=1883)
-        self.led = machine.Pin("LED", machine.Pin.OUT)
-        self.mqttInit()
-        self.messager = messager
-        self.button = mainButton
-        self.buzzer = buzzer
-        print('mqtt constructor end')
-
-    def mqttInit(self):
-        self.status = 'connecting'
-        self.connectedToBroker = self.connectToBroker()
-        if self.connectedToBroker:
-            print('mqtt full connected to broker')
+    client = MQTTClient(client_id=DEVICE_UUID, server=MQTT_BROKER_URL, port=1883)
 
     def connectToBroker(self):
-        while not self.connectedToBroker:
-            try:
-                self.client.set_callback(self.sub_cb)
-                self.client.connect()
-                print('connected to broker')
-                self.connectedToBroker = True
-                return True
-            except Exception as e:
-                print('connect to broker error')
-                self.connectedToBroker = False
-                print(e)
-                return False
-        utime.sleep(1)
-        self.status = 'connected'
-
-    def subscribeToTopic(self, topicName):
         try:
-            self.client.subscribe(topicName)
-            return True
+            self.client.connect()
+            return "connected"
         except Exception as e:
-            print(e)
-            return False
+            print("connect to broker error", e)
+            return "disconnected"
+
+    def subscribeToTopic(self, topic_name):
+        try:
+            self.client.subscribe(topic_name)
+            return "topicName"
+        except Exception as e:
+            print("subscribe to topic error", e)
+            return "none"
 
     def sub_cb(self, topic, msg):
         msg = msg.decode('utf8').replace("'", '"')

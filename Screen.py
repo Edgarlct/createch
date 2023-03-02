@@ -15,27 +15,45 @@ class Screen:
         self.height = self.oled.height
 
 
-    def showHome(self, wifiStatus):
+    def showHome(self, wifiStatus, mqtt_status="disconnected", home_texts=[]):
+        #clear screen
+        self.oled.fill(0)
+
+        #wifi icon
         if wifiStatus == 'connected':
             self.show_wifi_connected()
         else:
             self.show_wifi_unconected()
+        #mqtt icon
+        if mqtt_status == 'connected':
+            self.show_connected_to_broker()
+
+        #show text on 3 lines
+        if len(home_texts) == 3:
+            self.oled.text(home_texts[0], round((100 - (len(home_texts[0]) * 5.5)) / 2), 30)
+            self.oled.text(home_texts[1], round((100 - (len(home_texts[1]) * 5.5)) / 2), 40)
+            self.oled.text(home_texts[2], round((100 - (len(home_texts[2]) * 5.5)) / 2), 50)
+
+        #show
+        self.oled.show()
+
+
+
+    def show_connected_to_broker(self):
+        bitmap = bytearray(b'\xff\xff\xff\xff\xff\xff\xff\xff\xff\xf0?\xff\xe0\x1f\xff\xe0\x1f\xff\xe0\x1f\xff\xe0\x1f\xff\xe0\x1f\xff\xf0?\xff\xff\xfc\x0f\xff\xf8\x07\xf9\xf8\x07\xf9\xf8\x07\xff\xf8\x07\xff\xf8\x07\xf9\x98\x07\xf9\x98\xc7\xff\xf8\xc7\xff\xf8\x07\xff\xfc\x0f\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff')
+        fbuf = framebuf.FrameBuffer(bitmap, 20, 16, framebuf.MONO_HLSB)
+        self.oled.blit(fbuf, 110, 0)
 
     def show_wifi_connected(self):
-        self.oled.fill(0)
         # load the image from the bit array
         bitmap = bytearray(b'\x00\x00\x00\x00\x00\x00\x01\xf8\x00\x0f\xff\x00\x3e\x07\xc0\x70\x00\xe0\xe3\xfc\x70\xc7\xfe\x30\x1e\x07\x80\x18\x01\x80\x11\xf8\x80\x03\xfc\x00\x07\x0e\x00\x04\x62\x00\x00\xf0\x00\x00\xf0\x00\x00\xf0\x00\x00\x60\x00\x00\x00\x00\x00\x00\x00\x00')
         fbuf = framebuf.FrameBuffer(bitmap, 20, 16, framebuf.MONO_HLSB)
         self.oled.blit(fbuf, 0, 0)
 
-        self.oled.show()
-
     def show_wifi_unconected(self):
-        self.oled.fill(0)
         bitmap = bytearray(b'\x00\x00\x00\x00\x00\x00\x30\x00\x00\x39\xfe\x00\x1c\x07\x80\x3e\x01\xc0\x27\x38\x40\x07\x9e\x00\x0d\xc3\x00\x00\xe0\x00\x01\xf0\x00\x01\x38\x00\x00\x1c\x00\x00\xfe\x00\x00\xf7\x00\x00\xf3\x80\x00\xf1\xc0\x00\x00\xc0\x00\x00\x00\x00\x00\x00\x00')
         fbuf = framebuf.FrameBuffer(bitmap, 20, 16, framebuf.MONO_HLSB)
         self.oled.blit(fbuf, 0, 0)
-        self.oled.show()
 
     def showMessage(self, message):
         letter_width = 9

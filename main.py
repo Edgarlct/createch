@@ -7,6 +7,7 @@ from Screen import Screen
 from Wifi import Wifi
 import utime
 
+from mqttClient import Mqtt
 
 ###################################################################
 ####################### GLOBAL STATE VARIABLES ####################
@@ -53,7 +54,7 @@ RECEIVED_MESSAGE_CUE = []
 """
 
 ########## TEXT ##########
-HOME_TEXT = []
+HOME_TEXTS = [WIFI_STATUS, MQTT_SUBSCRIBED_TOPIC, "no error"]
 """ :type: list of strings, value: ["line1", "line2", "line3"] """
 
 
@@ -66,6 +67,7 @@ _wifi = Wifi()
 # messager.displayMessage('welcome')
 # utime.sleep(1)
 # button = Button()
+_mqtt = Mqtt()
 
 ########################### init devices ################################
 
@@ -73,8 +75,9 @@ buzzer = Buzzer()
 # mqtt = Mqtt(messager, button, buzzer)
 buzzer.bip(0.1)
 
-_screen.showHome(WIFI_STATUS)
+_screen.showHome(WIFI_STATUS, mqtt_status="connected", home_texts=HOME_TEXTS)
 
+VAR = 1
 
 ###################################################################
 ####################### MAIN LOOP #################################
@@ -83,7 +86,8 @@ _screen.showHome(WIFI_STATUS)
 while RUNNING:
      ####################### COLLECT STATUS AND UPDATE GLOBAL STATUS VAR ##############################
 
-
+    _mqtt.mqttInit(VAR)
+    print(VAR)
 
 
     ####################### EXECUTE ACTIONS BASED ON GLOBAL STATUS VAR ##############################
@@ -98,10 +102,12 @@ while RUNNING:
 
     ###### update screen #########
     try:
-        _screen.showHome(WIFI_STATUS)
+        _screen.showHome(wifiStatus=WIFI_STATUS, mqtt_status="connected", home_texts=HOME_TEXTS)
     except Exception as e:
         print("screen show home execption in main loop")
         print(e)
     utime.sleep(2)
+
+
 
 
