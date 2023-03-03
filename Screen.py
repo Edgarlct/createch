@@ -71,15 +71,5 @@ class Screen:
         fbuf = framebuf.FrameBuffer(bitmap, 40, 40, framebuf.MONO_HLSB)
         self.oled.blit(fbuf, (self.width // 2) - 20, (self.height // 2) - 10)
         self.oled.show()
-        # maybe one day I remove this shit
-        happy_birthday = [
-            "G4", "G4", "A4", "G4", "C5", "B4",
-            "G4", "G4", "A4", "G4", "D5", "C5",
-            "G4", "G4", "G5", "E5", "C5", "B4", "A4",
-            "F5", "F5", "E5", "C5", "D5", "C5", "G4", "G4", "A4", "G4", "C5", "B4",
-            "G4", "G4", "A4", "G4", "D5", "C5",
-            "G4", "G4", "G5", "E5", "C5", "B4", "A4",
-            "F5", "F5", "E5", "C5", "D5", "C5"
-        ]
 
 

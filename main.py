@@ -121,7 +121,8 @@ while RUNNING:
             if len(RECEIVED_MESSAGE_CUE) > 0:
                 print(RECEIVED_MESSAGE_CUE[0]["message"])
                 while not RECEIVED_MESSAGE_CUE[0]["readed"]:
-                    buzzer.bip(0.2)
+                    # buzzer.bip()
+                    buzzer.playAlert()
                     if MAIN_BUTTON_SHORT_PRESSED:
                         RECEIVED_MESSAGE_CUE[0]["readed"] = True
                         RECEIVED_MESSAGE_CUE.pop(0)
