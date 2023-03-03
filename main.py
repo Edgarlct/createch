@@ -1,3 +1,5 @@
+import _thread
+
 from Button import Button
 from Buzzer import Buzzer
 from Screen import Screen
@@ -30,7 +32,7 @@ MQTT_SUBSCRIBED_TOPIC = "none"
 """ :type: str, value: "none" or <topic name> """
 
 ########## BUTTONS ##########
-MAIN_BUTTON_PRESSED = False
+MAIN_BUTTON_SHORT_PRESSED = False
 """ :type: bool, value: True or False """
 
 SECOND_BUTTON_STATUS = False
@@ -67,17 +69,31 @@ _mqtt = Mqtt()
 
 buzzer = Buzzer()
 
-_screen.showHome(WIFI_STATUS, mqtt_status=MQTT_CONNECTION_TO_BROKER_STATUS, home_texts=HOME_TEXTS)
+# _screen.showHome(WIFI_STATUS, mqtt_status=MQTT_CONNECTION_TO_BROKER_STATUS, home_texts=HOME_TEXTS)
 
 ###################################################################
 ####################### MAIN LOOP #################################
 ###################################################################
 
+def ui_loop():
+    global MAIN_BUTTON_SHORT_PRESSED
+    while True:
+        if _button.MainIsPressed():
+            MAIN_BUTTON_SHORT_PRESSED = True
+
+        #update screen
+        try:
+            _screen.showHome(wifiStatus=WIFI_STATUS, mqtt_status=MQTT_CONNECTION_TO_BROKER_STATUS,
+                             home_texts=HOME_TEXTS)
+        except Exception as e:
+            print("screen show home execption in main loop")
+            print(e)
+        utime.sleep(0.1)
+
+THREAD1 = _thread.start_new_thread(ui_loop, ())
+
 
 while RUNNING:
-     ####################### COLLECT STATUS AND UPDATE GLOBAL STATUS VAR ##############################
-    MAIN_BUTTON_PRESSED = _button.MainIsPressed()
-
     ####################### EXECUTE ACTIONS BASED ON GLOBAL STATUS VAR ##############################
 
     ###### wifi  ####
@@ -103,25 +119,19 @@ while RUNNING:
                 print(RECEIVED_MESSAGE_CUE[0]["message"])
                 while not RECEIVED_MESSAGE_CUE[0]["readed"]:
                     buzzer.bip(1)
-                    if MAIN_BUTTON_PRESSED:
+                    if MAIN_BUTTON_SHORT_PRESSED:
                         RECEIVED_MESSAGE_CUE[0]["readed"] = True
                         RECEIVED_MESSAGE_CUE.pop(0)
+                        MAIN_BUTTON_SHORT_PRESSED = False
 
     except Exception as e:
         print("check msg execption in main loop")
         print(e)
 
-    ######################## update UI ##############################
     ###### update texts ######
     HOME_TEXTS = [DEVICE_UUID, MQTT_SUBSCRIBED_TOPIC, "no error"]
 
-    ####### update screen #######
-    try:
-        _screen.showHome(wifiStatus=WIFI_STATUS, mqtt_status=MQTT_CONNECTION_TO_BROKER_STATUS, home_texts=HOME_TEXTS)
-    except Exception as e:
-        print("screen show home execption in main loop")
-        print(e)
-    utime.sleep(2)
+    utime.sleep(0.2)
 
 
 
