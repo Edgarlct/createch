@@ -5,7 +5,7 @@ import utime
 class Buzzer:
 
     def __init__(self):
-        self.buzzer = machine.PWM(machine.Pin(2, mode=machine.Pin.OUT))
+        self.buzzer = machine.PWM(machine.Pin(15, mode=machine.Pin.OUT))
         # self.buzzerBip = machine.Pin(2, machine.Pin.OUT)
         self.bip(0.2, 2)
         utime.sleep(0.1)
