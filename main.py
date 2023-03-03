@@ -72,9 +72,8 @@ buzzer = Buzzer()
 # _screen.showHome(WIFI_STATUS, mqtt_status=MQTT_CONNECTION_TO_BROKER_STATUS, home_texts=HOME_TEXTS)
 
 ###################################################################
-####################### MAIN LOOP #################################
+####################### UI LOOP ###################################
 ###################################################################
-
 def ui_loop():
     global MAIN_BUTTON_SHORT_PRESSED
     while True:
@@ -92,6 +91,10 @@ def ui_loop():
 
 THREAD1 = _thread.start_new_thread(ui_loop, ())
 
+
+###################################################################
+####################### MAIN LOOP #################################
+###################################################################
 
 while RUNNING:
     ####################### EXECUTE ACTIONS BASED ON GLOBAL STATUS VAR ##############################
@@ -118,11 +121,12 @@ while RUNNING:
             if len(RECEIVED_MESSAGE_CUE) > 0:
                 print(RECEIVED_MESSAGE_CUE[0]["message"])
                 while not RECEIVED_MESSAGE_CUE[0]["readed"]:
-                    buzzer.bip(1)
+                    buzzer.bip(0.2)
                     if MAIN_BUTTON_SHORT_PRESSED:
                         RECEIVED_MESSAGE_CUE[0]["readed"] = True
                         RECEIVED_MESSAGE_CUE.pop(0)
                         MAIN_BUTTON_SHORT_PRESSED = False
+                        break
 
     except Exception as e:
         print("check msg execption in main loop")
