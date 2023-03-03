@@ -28,5 +28,6 @@ class Mqtt:
         msg = msg.decode('utf8').replace("'", '"')
         msg = json.loads(msg)
         if "all" in msg['targets'] or DEVICE_UUID in msg["targets"]:
+            msg["readed"] = False
             self.message_queue.append(msg)
     

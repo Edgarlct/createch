@@ -76,7 +76,7 @@ _screen.showHome(WIFI_STATUS, mqtt_status=MQTT_CONNECTION_TO_BROKER_STATUS, home
 
 while RUNNING:
      ####################### COLLECT STATUS AND UPDATE GLOBAL STATUS VAR ##############################
-
+    MAIN_BUTTON_PRESSED = _button.MainIsPressed()
 
     ####################### EXECUTE ACTIONS BASED ON GLOBAL STATUS VAR ##############################
 
@@ -100,8 +100,13 @@ while RUNNING:
         if MQTT_SUBSCRIBED_TOPIC != "none":
             _mqtt.client.check_msg()
             if len(RECEIVED_MESSAGE_CUE) > 0:
-                print("received message")
-                print(RECEIVED_MESSAGE_CUE.pop(0)["message"])
+                print(RECEIVED_MESSAGE_CUE[0]["message"])
+                while not RECEIVED_MESSAGE_CUE[0]["readed"]:
+                    buzzer.bip(1)
+                    if MAIN_BUTTON_PRESSED:
+                        RECEIVED_MESSAGE_CUE[0]["readed"] = True
+                        RECEIVED_MESSAGE_CUE.pop(0)
+
     except Exception as e:
         print("check msg execption in main loop")
         print(e)
